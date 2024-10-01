@@ -5,7 +5,7 @@ from django.views.generic.list import ListView
 
 from common.views import TitleMixin
 
-from .models import Basket, Product
+from .models import Basket, Product, ProductCategory
 
 
 class IndexView(TitleMixin, TemplateView):
@@ -36,7 +36,7 @@ class ProductsListView(TitleMixin, ListView):
         #     cache.set('categories', context['categories'], 30)
         # else:
         #     context['categories'] = categories
-        context['categories'] = Product.objects.all()
+        context['categories'] = ProductCategory.objects.all()
         return context
 
 
