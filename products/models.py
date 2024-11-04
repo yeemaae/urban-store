@@ -88,3 +88,13 @@ class Basket(models.Model):
             'sum': float(self.sum()),
         }
         return basket_item
+
+
+class UserSearchLog(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True, blank=True)
+    query = models.CharField(max_length=256)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, null=True, blank=True)
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.user} searched for {self.query} and clicked {self.product}"

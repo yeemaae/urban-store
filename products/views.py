@@ -1,11 +1,12 @@
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import HttpResponseRedirect
+from django.shortcuts import HttpResponseRedirect, render, get_object_or_404
 from django.views.generic.base import TemplateView
 from django.views.generic.list import ListView
+from django.db.models import Q
 
 from common.views import TitleMixin
-
-from .models import Basket, Product, ProductCategory
+from .utils import get_recommended_products
+from .models import Basket, Product, ProductCategory, UserSearchLog
 
 
 class IndexView(TitleMixin, TemplateView):
@@ -60,3 +61,30 @@ def basket_remove(request, basket_id):
     basket = Basket.objects.get(id=basket_id)
     basket.delete()
     return HttpResponseRedirect(request.META['HTTP_REFERER'])
+
+
+def product_search(request):
+    query = request.GET.get('q')
+    products = Product.objects.all()
+
+    if query:
+        products = products.filter(
+            Q(name__icontains=query) |
+            Q(description__icontains=query) |
+            Q(category__name__icontains=query)
+        )
+        if request.user.is_authenticated:
+            UserSearchLog.objects.create(user=request.user, query=query)
+
+    recommended_products = get_recommended_products(request.user)
+    return render(request, 'products/product_search.html', {
+        'products': products,
+        'query': query,
+        'recommended_products': recommended_products
+    })
+
+
+def product_detail(request, pk):
+    product = get_object_or_404(Product, pk=pk)
+    context = {'product': product}
+    return render(request, 'products/product_detail.html', context)

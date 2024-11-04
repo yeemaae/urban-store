@@ -1,0 +1,74 @@
+{% extends "products/base.html" %}
+{% load static %}
+{% load static cache humanize %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2>Результаты поиска{% if query %}: "{{ query }}"{% endif %}</h2>
+    {% if products %}
+        <div class="row">
+                    {% for product in products %}
+                        <div class="col-lg-4 col-md-6 mb-4">
+                            <div class="card h-100">
+                                <a href="#">
+                                    <img class="card-img-top"
+                                         src="{{ product.image.url }}"
+                                         alt="">
+                                </a>
+                                <div class="card-body">
+                                    <h4 class="card-title">
+                                        <a href="#">{{ product.name }}</a>
+                                    </h4>
+                                    <h5>{{ product.price|intcomma }} руб.</h5>
+                                    <p class="card-text">{{ product.description }}</p>
+                                </div>
+                                <div class="card-footer text-center">
+                                    <a class="btn btn-outline-success"
+                                       href="{% url 'products:basket_add' product.id %}">
+                                        Отправить в корзину
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+        </div>
+    {% else %}
+        <p>По вашему запросу ничего не найдено.</p>
+    {% endif %}
+</div>
+
+<div class="container mt-5">
+{% if user.is_authenticated and recommended_products %}
+    <h3>Рекомендуемые продукты</h3>
+    <div class="row">
+        {% for product in recommended_products %}
+            <div class="col-lg-4 col-md-6 mb-4">
+                <div class="card h-100">
+                    <a href="#">
+                        <img class="card-img-top" src="{{ product.image.url }}" alt="{{ product.name }}">
+                    </a>
+                    <div class="card-body d-flex flex-column">
+                        <h4 class="card-title">
+                            <a href="#">{{ product.name }}</a>
+                        </h4>
+                        <h5>{{ product.price|intcomma }} руб.</h5>
+                        <p class="card-text">{{ product.description|truncatewords:20 }}</p>
+                    </div>
+                    <div class="card-footer text-center">
+                        <a class="btn btn-outline-success" href="{% url 'products:basket_add' product.id %}">
+                            Отправить в корзину
+                        </a>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% else %}
+    <p>Нет рекомендаций.</p>
+{% endif %}
+</div>
+
+
+
+
+{% endblock %}
